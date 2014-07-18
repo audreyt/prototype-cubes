@@ -1,7 +1,7 @@
 {
-  "name": "jsl-seed",
+  "name": "prototype-cubes",
   "version": "0.0.1",
-  "homepage": "https://github.com/caasi/jsl-seed",
+  "homepage": "https://github.com/caasi/prototype-cubes",
   "authors": [
     "caasi Huang <caasi.igd@gmail.com>"
   ],
@@ -19,7 +19,8 @@
   ],
   "dependencies": {
     "jquery": "~2.1.0",
-    "semantic-ui": "~0.15.5"
+    "semantic-ui": "~0.15.5",
+    "react": "~0.10.0"
   },
   "overrides": {
     "semantic-ui": {
