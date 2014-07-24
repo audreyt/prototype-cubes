@@ -89,3 +89,21 @@ td {
 a img {
   border: none;
 }
+.cube-list {
+  position: absolute;
+  top: 0;
+  left: 0;
+  background: #00f;
+}
+.cube-list .hit {
+  position: absolute;
+  top: 0;
+}
+.cube-list .hit.left {
+  left: 0;
+  background: #f00;
+}
+.cube-list .hit.right {
+  right: 0;
+  background: #0f0;
+}
