@@ -40,13 +40,11 @@
   };
   Hittable = {
     list: [],
-    status: {
-      OUT: 0x00,
-      OVERLAP: 0x01,
-      IN: 0x03
-    },
     mixin: {
       componentDidMount: function(){
+        this.onHit = this.props.onHit || function(obj){
+          throw Error('unimplemented');
+        };
         Hittable.list.push(this);
       },
       componentWillUnmount: function(){
@@ -57,6 +55,25 @@
     }
   };
   CC == null && (CC = {
+    HitArea: React.createClass({
+      displayName: 'HitArea',
+      mixins: [Hittable.mixin],
+      getDefaultProps: function(){
+        return {
+          width: config.width,
+          height: config.height
+        };
+      },
+      render: function(){
+        return div({
+          className: this.props.className,
+          style: {
+            width: this.props.width,
+            height: this.props.height
+          }
+        });
+      }
+    }),
     List: React.createClass({
       displayName: 'List',
       mixins: [Draggable.mixin, Hittable.mixin],
@@ -69,24 +86,11 @@
           words: [0]
         };
       },
-      leftClicked: function(e){
-        e.preventDefault();
-        this.state.words.unshift(0);
-        this.setState({
-          x: this.state.x - config.width,
-          width: this.state.width + config.width,
-          words: this.state.words
-        });
-        return console.log(this.state.words);
+      onLeftHit: function(e){
+        throw Error('unimplemented');
       },
-      rightClicked: function(e){
-        e.preventDefault();
-        this.state.words.push(0);
-        this.setState({
-          width: this.state.width + config.width,
-          words: this.state.words
-        });
-        return console.log(this.state.words);
+      onRightHit: function(e){
+        throw Error('unimplemented');
       },
       render: function(){
         return div({
@@ -97,23 +101,17 @@
             width: this.state.width,
             height: this.state.height
           }
-          /*
-          * a do
-              className: 'hit left'
-              style:
-                width:  config.width / 2
-                height: config.height
-              href: '#'
-              #onClick: @leftClicked
-          * a do
-              className: 'hit right'
-              style:
-                width:  config.width / 2
-                height: config.height
-              href: '#'
-              #onClick: @rightClicked
-          */
-        });
+        }, CC.HitArea({
+          className: 'hit left',
+          width: config.width / 2,
+          height: config.height,
+          onHit: this.onLeftHit
+        }), CC.HitArea({
+          className: 'hit right',
+          width: config.width / 2,
+          height: config.height,
+          onHit: this.onRightHit
+        }));
       }
     })
   });

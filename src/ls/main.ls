@@ -35,12 +35,9 @@ Draggable = do
 
 Hittable = do
   list: []
-  status:
-    OUT:     0x00
-    OVERLAP: 0x01
-    IN:      0x03
   mixin:
     componentDidMount: !->
+      @onHit = @props.onHit or !(obj) -> ...
       Hittable.list.push this
     componentWillUnmount: !->
       Hittable.list := Hittable.list.filter (isnt this), this
@@ -49,6 +46,20 @@ Hittable = do
       # changing the state will affect the new state
 
 CC ?= do
+  HitArea: React.createClass do
+    displayName: \HitArea
+    mixins: [Hittable.mixin]
+    getDefaultProps: ->
+      width:  config.width
+      height: config.height
+    render: ->
+      div do
+        # transfer className manually,
+        # so width and height will not be exposed
+        className: @props.className
+        style:
+          width:  @props.width
+          height: @props.height
   List: React.createClass do
     displayName: \List
     mixins: [Draggable.mixin, Hittable.mixin]
@@ -58,21 +69,10 @@ CC ?= do
       width:  config.width
       height: config.height
       words: [0]
-    leftClicked: (e) ->
-      e.preventDefault!
-      @state.words.unshift 0
-      @setState do
-        x: @state.x - config.width
-        width: @state.width + config.width
-        words: @state.words
-      console.log @state.words
-    rightClicked: (e) ->
-      e.preventDefault!
-      @state.words.push 0
-      @setState do
-        width: @state.width + config.width
-        words: @state.words
-      console.log @state.words
+    onLeftHit: (e) ->
+      ...
+    onRightHit: (e) ->
+      ...
     render: ->
       div do
         className: 'cube-list'
@@ -81,22 +81,16 @@ CC ?= do
           top:    @state.y
           width:  @state.width
           height: @state.height
-        /*
-        * a do
+        * CC.HitArea do
             className: 'hit left'
-            style:
-              width:  config.width / 2
-              height: config.height
-            href: '#'
-            #onClick: @leftClicked
-        * a do
+            width:  config.width / 2
+            height: config.height
+            onHit: @onLeftHit
+        * CC.HitArea do
             className: 'hit right'
-            style:
-              width:  config.width / 2
-              height: config.height
-            href: '#'
-            #onClick: @rightClicked
-        */
+            width:  config.width / 2
+            height: config.height
+            onHit: @onRightHit
 
 React.renderComponent CC.List!, config.root
 
