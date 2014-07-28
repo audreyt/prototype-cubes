@@ -35,15 +35,32 @@ Draggable = do
 
 Hittable = do
   list: []
+  hit: (a, b) ->
+    # how can I hit components w/o test their own hitareas?
+    false
   mixin:
     componentDidMount: !->
       @onHit = @props.onHit or !(obj) -> ...
       Hittable.list.push this
     componentWillUnmount: !->
       Hittable.list := Hittable.list.filter (isnt this), this
-    #componentWillUpdate: !(props, state) ->
+    componentWillUpdate: !(props, state) ->
       # do the collision tests here
       # changing the state will affect the new state
+      a = $ @getDOMNode! .offset!
+      a <<< do
+        right:  a.left + props.width
+        bottom: a.top  + props.height
+      for comp in Hittable.list
+        continue if this is comp and @hittable
+        b = $ comp.getDOMNode! .offset!
+        b <<< do
+          right:  b.left + comp.props.width
+          bottom: b.top  + comp.props.height
+        if Hittable.hit a, b
+          @onHit comp
+          comp.onHit this
+
 
 CC ?= do
   HitArea: React.createClass do
@@ -66,9 +83,10 @@ CC ?= do
     getInitialState: ->
       x: 200
       y: 200
+      words: [0]
+    getDefaultProps: ->
       width:  config.width
       height: config.height
-      words: [0]
     onLeftHit: (e) ->
       ...
     onRightHit: (e) ->
@@ -79,8 +97,8 @@ CC ?= do
         style:
           left:   @state.x
           top:    @state.y
-          width:  @state.width
-          height: @state.height
+          width:  @props.width
+          height: @props.height
         * CC.HitArea do
             className: 'hit left'
             width:  config.width / 2

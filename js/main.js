@@ -40,6 +40,9 @@
   };
   Hittable = {
     list: [],
+    hit: function(a, b){
+      return false;
+    },
     mixin: {
       componentDidMount: function(){
         this.onHit = this.props.onHit || function(obj){
@@ -51,6 +54,29 @@
         Hittable.list = Hittable.list.filter((function(it){
           return it !== this;
         }), this);
+      },
+      componentWillUpdate: function(props, state){
+        var a, i$, ref$, len$, comp, b;
+        a = $(this.getDOMNode()).offset();
+        import$(a, {
+          right: a.left + props.width,
+          bottom: a.top + props.height
+        });
+        for (i$ = 0, len$ = (ref$ = Hittable.list).length; i$ < len$; ++i$) {
+          comp = ref$[i$];
+          if (this === comp && this.hittable) {
+            continue;
+          }
+          b = $(comp.getDOMNode()).offset();
+          import$(b, {
+            right: b.left + comp.props.width,
+            bottom: b.top + comp.props.height
+          });
+          if (Hittable.hit(a, b)) {
+            this.onHit(comp);
+            comp.onHit(this);
+          }
+        }
       }
     }
   };
@@ -81,9 +107,13 @@
         return {
           x: 200,
           y: 200,
-          width: config.width,
-          height: config.height,
           words: [0]
+        };
+      },
+      getDefaultProps: function(){
+        return {
+          width: config.width,
+          height: config.height
         };
       },
       onLeftHit: function(e){
@@ -98,8 +128,8 @@
           style: {
             left: this.state.x,
             top: this.state.y,
-            width: this.state.width,
-            height: this.state.height
+            width: this.props.width,
+            height: this.props.height
           }
         }, CC.HitArea({
           className: 'hit left',
@@ -116,4 +146,9 @@
     })
   });
   React.renderComponent(CC.List(), config.root);
+  function import$(obj, src){
+    var own = {}.hasOwnProperty;
+    for (var key in src) if (own.call(src, key)) obj[key] = src[key];
+    return obj;
+  }
 }).call(this);
